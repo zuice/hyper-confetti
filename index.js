@@ -2,35 +2,31 @@ const PropTypes = require('prop-types');
 const { generateParticles, updateParticles } = require('./utils/particle');
 
 function decorateTerm(Term, { React }) {
-  const PROFILE = ['snow', 'steady'];
-  const AMOUNT = 800;
-  const WIDTH = window.innerWidth;
-  const HEIGHT = window.innerHeight;
-  const STYLES = {
-    background: 'transparent',
-    width: '100%',
-    height: '100%',
-    zIndex: 1000,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    display: 'block',
-    pointerEvents: 'none',
-  };
-
-  class Canvas extends React.Component {
+  return class extends React.Component {
     constructor(props) {
       super(props);
 
+      this.state = {
+        profile: ['snow'],
+        amount: 100,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        styles: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          position: 'absolute',
+          zIndex: 1000,
+          top: 0,
+          pointerEvents: 'none',
+        },
+      };
       this.ctx = null;
       this.dynamicX = 0;
     }
 
     handleResize() {
-      this.refs.canvas.width = window.innerWidth;
-      this.refs.canvas.height = window.innerHeight;
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
     }
 
     /**
@@ -49,7 +45,7 @@ function decorateTerm(Term, { React }) {
       const endAngle = 2 * Math.PI; // 360 degrees in radians
       const antiClockwise = true;
       const { ctx, dynamicX } = this;
-      const { width = WIDTH, height = HEIGHT, profile = PROFILE } = this.props;
+      const { width, height, profile } = this.state;
       const [type] = profile;
 
       // Clear the canvas context before updating and animating the particles.
@@ -127,18 +123,22 @@ function decorateTerm(Term, { React }) {
     }
 
     componentDidMount() {
-      const {
-        profile = PROFILE,
-        amount = AMOUNT,
-        width = WIDTH,
-        height = HEIGHT,
-      } = this.props;
+      const { styles, width, height, profile, amount } = this.state;
 
-      if (this.refs.canvas) {
-        this.ctx = this.refs.canvas.getContext('2d');
-        this.refs.canvas.width = window.innerWidth;
-        this.refs.canvas.height = window.innerHeight;
-      }
+      this.canvas = document.createElement('canvas');
+      this.canvas.style = styles;
+      this.canvas.style.width = width;
+      this.canvas.style.height = window.innerHeight;
+      this.canvas.style.position = 'absolute';
+      this.canvas.style.zIndex = 1000;
+      this.canvas.style.top = 0;
+      this.canvas.style.pointerEvents = 'none';
+      this.ctx = this.canvas.getContext('2d');
+      this.canvas.width = width;
+      this.canvas.height = height;
+
+      document.body.appendChild(this.canvas);
+      window.addEventListener('resize', this.handleResize());
 
       const particles = generateParticles(profile, amount, { width, height });
 
@@ -146,30 +146,13 @@ function decorateTerm(Term, { React }) {
     }
 
     render() {
-      const { width = WIDTH, height = HEIGHT, styles = STYLES } = this.props;
-
-      return React.createElement('canvas', {
-        id: 'react-snowfetti',
-        style: styles,
-        ref: 'canvas',
-      });
-    }
-  }
-
-  return class extends React.Component {
-    render() {
-      return React.createElement('div', {}, [
-        React.createElement(Canvas, {
-          amount: 100,
+      return React.createElement(
+        Term,
+        Object.assign({}, this.props, {
+          onDecorated: this._onDecorated,
+          onCursorMove: this._onCursorMove,
         }),
-        React.createElement(
-          Term,
-          Object.assign({}, this.props, {
-            onDecorated: this._onDecorated,
-            onCursorMove: this._onCursorMove,
-          }),
-        ),
-      ]);
+      );
     }
   };
 }
