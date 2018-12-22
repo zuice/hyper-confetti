@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/vueu/hyper-confetti",
+    "type": "git"
+  },
+  "author": "vueu",
+  "license": "MIT",
   "dependencies": {
     "prop-types": "^15.6.2",
     "random-hex": "^1.0.2",
