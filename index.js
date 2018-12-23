@@ -126,6 +126,7 @@ function decorateTerm(Term, { React }) {
       const { styles, width, height, profile, amount } = this.state;
 
       this.canvas = document.createElement('canvas');
+      this.canvas.id = 'hyper-confetti';
       this.canvas.style = styles;
       this.canvas.style.width = width;
       this.canvas.style.height = window.innerHeight;
@@ -137,12 +138,14 @@ function decorateTerm(Term, { React }) {
       this.canvas.width = width;
       this.canvas.height = height;
 
-      document.body.appendChild(this.canvas);
-      window.addEventListener('resize', this.handleResize());
+      if (!document.getElementById('hyper-confetti')) {
+      	document.body.appendChild(this.canvas);
+      	window.addEventListener('resize', this.handleResize());
 
-      const particles = generateParticles(profile, amount, { width, height });
+        const particles = generateParticles(profile, amount, { width, height });
 
-      this.animate(particles);
+        this.animate(particles);
+      }
     }
 
     render() {
